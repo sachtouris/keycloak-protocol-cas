@@ -15,7 +15,6 @@ import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.oidc.utils.OAuth2Code;
 import org.keycloak.protocol.oidc.utils.RedirectUtils;
 import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.managers.UserSessionCrossDCManager;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
 import java.nio.charset.StandardCharsets;
@@ -121,7 +120,7 @@ public abstract class AbstractValidateEndpoint {
         event.session(userSessionId);
 
         // Retrieve UserSession
-        UserSessionModel userSession = new UserSessionCrossDCManager(session).getUserSessionWithClient(realm, userSessionId, clientUUID);
+        UserSessionModel userSession = session.sessions().getUserSessionIfClientExists(realm, userSessionId, false, clientUUID);
         if (userSession == null) {
             // Needed to track if code is invalid
             userSession = session.sessions().getUserSession(realm, userSessionId);
@@ -270,7 +269,7 @@ public abstract class AbstractValidateEndpoint {
     {
         String key = UUID.randomUUID().toString();
         UserSessionModel userSession = clientSession.getUserSession();
-        OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, redirectUriParam, null, null, null, userSession.getId());
+        OAuth2Code codeData = new OAuth2Code(key, Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(), null, null, null, redirectUriParam, null, null, null, userSession.getId());
         session.singleUseObjects().put(prefix + key, clientSession.getUserSession().getRealm().getAccessCodeLifespan(), codeData.serializeCode());
         return prefix + key + "--" + hexEncode(clientSession.getUserSession().getId()) + "--" + clientSession.getClient().getId();
     }

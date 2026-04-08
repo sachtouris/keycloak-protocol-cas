@@ -37,7 +37,7 @@ public class LogoutEndpoint {
 
         AuthenticationManager.AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(session, realm, false);
         if (authResult != null) {
-            UserSessionModel userSession = authResult.getSession();
+            UserSessionModel userSession = authResult.session();
             userSession.setNote(AuthenticationManager.KEYCLOAK_LOGOUT_PROTOCOL, CASLoginProtocol.LOGIN_PROTOCOL);
 
             if (redirectUri != null) {
@@ -45,7 +45,7 @@ public class LogoutEndpoint {
             }
 
             logger.debug("Initiating CAS browser logout");
-            Response response = AuthenticationManager.browserLogout(session, realm, authResult.getSession(), session.getContext().getUri(), session.getContext().getConnection(), session.getContext().getRequestHeaders());
+            Response response = AuthenticationManager.browserLogout(session, realm, authResult.session(), session.getContext().getUri(), session.getContext().getConnection(), session.getContext().getRequestHeaders());
             logger.debug("finishing CAS browser logout");
             return response;
         }
