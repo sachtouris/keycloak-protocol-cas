@@ -1,6 +1,7 @@
 package org.keycloak.protocol.cas;
 
 import org.jboss.logging.Logger;
+import org.keycloak.common.Profile;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
@@ -8,6 +9,7 @@ import org.keycloak.models.ProtocolMapperModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.protocol.AbstractLoginProtocolFactory;
 import org.keycloak.protocol.LoginProtocol;
+import org.keycloak.protocol.cas.mappers.AuthnContextClassRefMapper;
 import org.keycloak.protocol.cas.mappers.FullNameMapper;
 import org.keycloak.protocol.cas.mappers.UserAttributeMapper;
 import org.keycloak.protocol.cas.mappers.UserPropertyMapper;
@@ -34,6 +36,9 @@ public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
     public static final String FAMILY_NAME_CONSENT_TEXT = "${familyName}";
     public static final String FULL_NAME_CONSENT_TEXT = "${fullName}";
     public static final String LOCALE_CONSENT_TEXT = "${locale}";
+
+
+    public static final String SCOPE_AUTHN_CONTEXT_CLASS_REF = "AuthnContextClassRef";
 
     @Override
     public LoginProtocol create(KeycloakSession session) {
@@ -69,6 +74,12 @@ public class CASLoginProtocolFactory extends AbstractLoginProtocolFactory {
                 "locale", "String",
                 false);
         builtins.put(LOCALE, model);
+
+        if (Profile.isFeatureEnabled(Profile.Feature.STEP_UP_AUTHENTICATION_SAML)) {
+            model = AuthnContextClassRefMapper.create(SCOPE_AUTHN_CONTEXT_CLASS_REF);
+            builtins.put(SCOPE_AUTHN_CONTEXT_CLASS_REF, model);
+            defaultBuiltins.add(model);
+        }
 
         model = FullNameMapper.create(FULL_NAME, "cn");
         builtins.put(FULL_NAME, model);

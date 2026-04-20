@@ -5,6 +5,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.apache.http.HttpEntity;
 import org.jboss.logging.Logger;
+import org.keycloak.common.Profile;
+import org.keycloak.common.Profile.Feature;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventBuilder;
@@ -31,6 +33,9 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String TARGET_PARAM = "TARGET";
     public static final String RENEW_PARAM = "renew";
     public static final String GATEWAY_PARAM = "gateway";
+    public static final String AUTHN_CONTEXT_CLASS_REF_PARAM = "authnContextClassRef";
+    public static final String AUTHN_CONTEXT_CLASS_REF_LEGACY_PARAM = "AuthnContextClassRef";
+    public static final String AUTHN_CONTEXT_COMPARISON_PARAM = "authnContextComparison";
     public static final String TICKET_PARAM = "ticket";
     public static final String FORMAT_PARAM = "format";
     public static final String PGTURL_PARAM = "pgtUrl";
@@ -45,6 +50,7 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String PROXY_GRANTING_TICKET_PREFIX = "PGT-";
     public static final String PROXY_TICKET_PREFIX = "PT-";
     public static final String SESSION_TICKET = "service_ticket";
+    public static final String SESSION_AUTHN_CONTEXT_CLASS_REF = "authn_context_class_ref";
 
     public static final String LOGOUT_REDIRECT_URI = "CAS_LOGOUT_REDIRECT_URI";
 
@@ -101,6 +107,14 @@ public class CASLoginProtocol implements LoginProtocol {
 
         String service = authSession.getRedirectUri();
         //TODO validate service
+
+        if (Profile.isFeatureEnabled(Feature.STEP_UP_AUTHENTICATION_SAML))
+        {
+            String authnContextClassRef = authSession.getClientNote(CASLoginProtocol.SESSION_AUTHN_CONTEXT_CLASS_REF);
+            if (authnContextClassRef != null) {
+                clientSession.setNote(CASLoginProtocol.SESSION_AUTHN_CONTEXT_CLASS_REF, authnContextClassRef);
+            }
+        }
 
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
 
