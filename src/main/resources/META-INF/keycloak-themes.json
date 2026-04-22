@@ -1,0 +1,8 @@
+{
+  "themes": [
+    {
+      "name": "keycloak-cas",
+      "types": [ "admin" ]
+    }
+  ]
+}
