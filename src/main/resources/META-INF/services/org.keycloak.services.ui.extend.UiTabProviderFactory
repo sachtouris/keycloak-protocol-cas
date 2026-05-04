@@ -1,0 +1,2 @@
+org.keycloak.admin.ui.CASAdvancedSettingsUiTab
+org.keycloak.admin.ui.LegacyCASAdvancedSettingsUiTab
